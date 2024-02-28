@@ -1,0 +1,13 @@
+
+import express from 'express';
+import * as RoleController from '../controllers/RoleController';
+
+const router = express.Router();
+
+router.post('/', RoleController.createRole);
+router.get('/', RoleController.getAllRoles);
+router.get('/:id', RoleController.getRoleById);
+router.put('/:id', RoleController.updateRole);
+router.delete('/:id', RoleController.deleteRole);
+
+export default router;

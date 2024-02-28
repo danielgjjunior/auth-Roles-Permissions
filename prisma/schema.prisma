@@ -1,0 +1,77 @@
+// prisma/schema.prisma
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        Int      @id @default(autoincrement())
+  name      String
+  shortName String
+  email     String   @unique
+  password  String
+  photoId   String?
+  active    Boolean
+  admin     Boolean
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+  roles     Role[]   @relation("UserRoles")
+  userRole  User_Role[]
+}
+
+
+model Role {
+  id              Int           @id @default(autoincrement())
+  name            String        @unique
+  created_at       DateTime      @default(now())
+  updated_at       DateTime      @updatedAt
+  users           User[]        @relation("UserRoles")
+  rolePermissions Role_Permission[]
+  userRole  User_Role[]
+}
+
+model Permission_Module {
+  id               Int                @id @default(autoincrement())
+  name             String             @unique
+  created_at       DateTime           @default(now())
+  updated_at       DateTime           @updatedAt
+  permissions      Permission[]
+  parentModule     Permission_Module? @relation("ChildModules", fields: [parentModuleId], references: [id])
+  parentModuleId   Int?
+  childModules     Permission_Module[] @relation("ChildModules")
+}
+
+model Permission {
+  id           Int           @id @default(autoincrement())
+  name         String        
+  prefix       String        @unique
+  id_module    Int
+  created_at    DateTime      @default(now())
+  updated_at    DateTime      @updatedAt
+  module       Permission_Module @relation(fields: [id_module], references: [id])
+  rolePermissions Role_Permission[]
+}
+
+model Role_Permission {
+  id              Int           @id @default(autoincrement())
+  role_id         Int
+  permission_id   Int
+  created_at       DateTime      @default(now())
+  updated_at       DateTime      @updatedAt
+  role            Role          @relation(fields: [role_id], references: [id])
+  permission      Permission    @relation(fields: [permission_id], references: [id])
+}
+
+model User_Role {
+  id        Int      @id @default(autoincrement())
+  user_id   Int
+  role_id   Int
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+  user      User     @relation(fields: [user_id], references: [id])
+  role      Role     @relation(fields: [role_id], references: [id])
+}
