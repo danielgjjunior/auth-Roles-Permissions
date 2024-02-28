@@ -1,0 +1,4 @@
+
+#DATABASE_URL="mysql://desenvolvimento:devA1D2M3@localhost/auth-teste"
+
+#JWT_SECRET=suachave
