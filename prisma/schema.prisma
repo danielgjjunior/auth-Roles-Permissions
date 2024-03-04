@@ -34,26 +34,18 @@ model Role {
   userRole  User_Role[]
 }
 
-model Permission_Module {
-  id               Int                @id @default(autoincrement())
-  name             String             @unique
-  created_at       DateTime           @default(now())
-  updated_at       DateTime           @updatedAt
-  permissions      Permission[]
-  parentModule     Permission_Module? @relation("ChildModules", fields: [parentModuleId], references: [id])
-  parentModuleId   Int?
-  childModules     Permission_Module[] @relation("ChildModules")
-}
 
 model Permission {
-  id           Int           @id @default(autoincrement())
-  name         String        
-  prefix       String        @unique
-  id_module    Int
-  created_at    DateTime      @default(now())
-  updated_at    DateTime      @updatedAt
-  module       Permission_Module @relation(fields: [id_module], references: [id])
-  rolePermissions Role_Permission[]
+  id                  Int             @id @default(autoincrement())
+  name                String
+  prefix              String           @unique
+  isModule            Boolean          @default(false)
+  parentPermission    Permission?      @relation("ChildPermissions", fields: [parentPermissionId], references: [id])
+  parentPermissionId  Int?
+  created_at          DateTime         @default(now())
+  updated_at          DateTime         @updatedAt
+  rolePermissions     Role_Permission[]
+  childPermissions    Permission[]    @relation("ChildPermissions")
 }
 
 model Role_Permission {

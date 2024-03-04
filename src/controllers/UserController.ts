@@ -64,9 +64,26 @@ const UserController = {
         const rolesWithPermissions = await Promise.all(
           userRoles.map(async (userRole) => {
             const permissions = await RolePermissionService.getPermissionsByRoleId(userRole.role_id);
-            return { ...userRole.role, permissions };
+        
+            // Mapeie as permissões para o formato desejado, incluindo as informações do módulo
+            const simplifiedPermissions = await Promise.all(
+              permissions.map(async (permission) => {
+                return {
+                  id: permission.permission.id,
+                  name: permission.permission.name,
+                  prefix: permission.permission.prefix,
+                  isModule: permission.permission.isModule,
+                  created_at: permission.permission.created_at,
+                  updated_at: permission.permission.updated_at,
+                  parent_permission_id: permission.permission.parentPermissionId,
+                };
+              })
+            );
+    
+            return { ...userRole.role, permissions: simplifiedPermissions };
           })
         );
+        
   
         // Cria o objeto de resposta combinando as informações do usuário e roles simplificados
         const responseObj = {
@@ -74,7 +91,6 @@ const UserController = {
           name: user.name,
           shortName: user.shortName,
           email: user.email,
-          password: user.password,
           photoId:user.photoId,
           active: user.active,
           admin: user.admin,
