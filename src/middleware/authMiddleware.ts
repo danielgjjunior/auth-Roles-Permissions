@@ -52,7 +52,6 @@ const authMiddleware = async (req: RequestWithUserId, res: Response, next: NextF
   }
 };
 
-// Função para registrar detalhes da solicitação
 const logRequestDetails = (req: Request, statusCode: number, message: string, startTime: number): void => {
   const endTime = Date.now();
   const elapsedTime = endTime - startTime;

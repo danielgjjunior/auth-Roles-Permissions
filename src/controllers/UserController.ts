@@ -55,16 +55,16 @@ const UserController = {
     try {
       const { email, password } = req.body;
       const user = await UserService.authenticateUser(email, password);
-  
+
       if (user) {
         const token = await UserService.generateToken(user.id);
         const userRoles = await UserRoleService.getAllRolesByUserId(user.id);
-  
+
         // Mapeia os roles para obter as permissões
         const rolesWithPermissions = await Promise.all(
           userRoles.map(async (userRole) => {
             const permissions = await RolePermissionService.getPermissionsByRoleId(userRole.role_id);
-        
+
             // Mapeie as permissões para o formato desejado, incluindo as informações do módulo
             const simplifiedPermissions = await Promise.all(
               permissions.map(async (permission) => {
@@ -79,27 +79,31 @@ const UserController = {
                 };
               })
             );
-    
+
             return { ...userRole.role, permissions: simplifiedPermissions };
           })
         );
-        
   
         // Cria o objeto de resposta combinando as informações do usuário e roles simplificados
-        const responseObj = {
+        const userObj = {
           id: user.id,
           name: user.name,
           shortName: user.shortName,
           email: user.email,
-          photoId:user.photoId,
+          photoId: user.photoId,
           active: user.active,
           admin: user.admin,
           created_at: user.created_at,
           updated_at: user.updated_at,
+        };
+
+        // Adiciona o objeto user aos roles
+        const responseObj = {
+          user: userObj,
           roles: rolesWithPermissions,
           token,
         };
-  
+
         // Retorna o objeto de resposta junto com o token
         res.status(200).json(responseObj);
       } else {
@@ -110,6 +114,8 @@ const UserController = {
       res.status(500).json({ error: 'Internal Server Error' });
     }
   },
+
+
   async uploadUserPhoto(req: Request, res: Response): Promise<void> {
     try {
       const userId = req.params.userId;
